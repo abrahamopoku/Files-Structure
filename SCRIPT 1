@@ -1,0 +1,22 @@
+#!/bin/bash
+IFS_SAVE="$IFS"
+IFS=$'\x0a'
+
+for f in $(find dir1 -type f -printf "%f\n"); do {
+    f1="dir1/$f"
+    f2="dir2/$f"
+    cmp --quiet "$f1" "$f2"
+    check=$?
+    if [ $check -eq 0 ] ; then
+        echo -e "OK: $f"
+    elif [ $check -eq 1 ] ; then
+        echo -en "Mismatch FOUND in files: "
+        filesize1=$(stat --printf="%s" "$f1" )
+        filesize2=$(stat --printf="%s" "$f2" )
+        echo "$f1" size:"$filesize1" "$f2" size:"$filesize2" check:"$check" 
+        #you may put diff ... or anything else here
+    else 
+        echo "cannot compare files, probably $f2 is missing"
+    fi
+} ; done
+IFS="$IFS_SAVE"
